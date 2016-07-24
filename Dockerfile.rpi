@@ -1,0 +1,22 @@
+FROM resin/armv7hf-debian-qemu
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN [ "cross-build-start" ]
+
+RUN apt-get update && \
+    apt-get install -yq \
+            python \
+            python-pip
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install -q -r /app/requirements.txt
+
+ADD *.py /app/
+
+RUN [ "cross-build-end" ]
+
+ENV PORT 80
+EXPOSE 80
+ENTRYPOINT ["/app/main.py"]
+CMD ["--"]

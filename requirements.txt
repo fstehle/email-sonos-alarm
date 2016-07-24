@@ -1,0 +1,11 @@
+Jinja2==2.8
+MarkupSafe==0.23
+Twisted==16.3.0
+argparse==1.4.0
+imaplib2==2.45.0
+importlib==1.0.3
+localmail==0.4.1
+requests==2.10.0
+soco==0.11.1
+wsgiref==0.1.2
+zope.interface==4.2.0
