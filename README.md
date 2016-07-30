@@ -34,3 +34,8 @@ export IMAP_ALARM_LABEL="some-label"
 docker run --rm -p 9001:80 fstehle/rpi-email-sonos-alarm -v --port 9001 $IMAP_HOST $IMAP_USER $IMAP_PASS $IMAP_ALARM_LABEL
 ```
 
+## Create an alarm on you Sonos for Pagerduty icidents
+
+1. 
+
+
