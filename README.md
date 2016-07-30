@@ -34,8 +34,11 @@ export IMAP_ALARM_LABEL="some-label"
 docker run --rm -p 9001:80 fstehle/rpi-email-sonos-alarm -v --port 9001 $IMAP_HOST $IMAP_USER $IMAP_PASS $IMAP_ALARM_LABEL
 ```
 
-## Create an alarm on you Sonos for Pagerduty icidents
+## Create an alarm for your Pagerduty icidents on your Sonos
 
-1. 
+1. Add a valid email address under the `Contact Information` tab in your PagerDuty profile and make sure it receives emails for incidents in the `Notification Rules` tab.
+2. Add a rule in your mail program / Gmail to sort the mail from PagerDuty into a specific IMAP folder / Gmail label.
+3. Start the email-sonos-alarm program like described in the previous section
+
 
 
