@@ -10,3 +10,6 @@ build:
 
 build-rpi:
 	docker build -f Dockerfile.rpi -t fstehle/rpi-email-sonos-alarm .
+
+push-rpi: build-rpi
+	docker push fstehle/rpi-email-sonos-alarm
