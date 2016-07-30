@@ -1,6 +1,9 @@
 # email-sonos-alarm
 
-Alert on new emails in Sonos
+Create an alarm on your Sonos when a new mail is received
+
+[![Build Status](https://circleci.com/gh/fstehle/email-sonos-alarm/tree/master.svg?style=shield)](https://circleci.com/gh/fstehle/email-sonos-alarm)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg "MIT License")](https://github.com/twbs/no-carrier/blob/master/LICENSE.txt)
 
 ## Usage on x86 machine:
 
