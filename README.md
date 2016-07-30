@@ -17,12 +17,20 @@ python main.py IMAP_HOST IMAP_USER IMAP_PASS
 ## Usage on a x86 machine with Docker:
 
 ```
-docker run -it fstehle/email-sonos-alarm IMAP_HOST IMAP_USER IMAP_PASS
+export IMAP_HOST="imap.gmail.com"
+export IMAP_USER="mail.example.com"
+export IMAP_PASS="secret"
+export IMAP_ALARM_LABEL="some-label"
+docker run --rm -p 9001:80 fstehle/email-sonos-alarm -v --port 9001 $IMAP_HOST $IMAP_USER $IMAP_PASS $IMAP_ALARM_LABEL
 ```
 
 ## Usage on a Raspberry Pi / ARMv7 with docker:
 
 ```
-docker run -it fstehle/rpiemail-sonos-alarm IMAP_HOST IMAP_USER IMAP_PASS
+export IMAP_HOST="imap.gmail.com"
+export IMAP_USER="mail.example.com"
+export IMAP_PASS="secret"
+export IMAP_ALARM_LABEL="some-label"
+docker run --rm -p 9001:80 fstehle/rpi-email-sonos-alarm -v --port 9001 $IMAP_HOST $IMAP_USER $IMAP_PASS $IMAP_ALARM_LABEL
 ```
 
