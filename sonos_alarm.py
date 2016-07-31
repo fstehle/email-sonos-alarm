@@ -30,22 +30,32 @@ class SonosAlarm(object):
         coordinators = list([zone for zone in zones if zone.is_coordinator])
 
         for zone_c in coordinators:
-            logging.info('Enable alarm %s' % zone_c.player_name)
-            alarm = Alarm(zone_c,
-                          start_time=datetime.datetime.now(self.timezone) + datetime.timedelta(0, 3),
-                          duration=datetime.time(0, 2, 0),
-                          recurrence='ONCE',
-                          program_metadata='EmailSonosAlarm',
-                          include_linked_zones=True)
-            alarm.save()
+            logging.info('Start alarm in zone %s' % zone_c.player_name)
+            self.alarm_coordinator(zone_c)
 
-        time.sleep(4 * len(coordinators))
+    def alarm_coordinator(self, coordinator, delay=2, retries=10):
+        logging.info('Try to create an alarm in zone %s, retries %i' % (coordinator.player_name, retries))
+        alarm = Alarm(coordinator,
+                      start_time=datetime.datetime.now(self.timezone) + datetime.timedelta(0, delay),
+                      duration=datetime.time(0, 2, 0),
+                      recurrence='ONCE',
+                      program_metadata='EmailSonosAlarm',
+                      include_linked_zones=True)
+        alarm.save()
 
-        for zone_c in coordinators:
-            alarms = soco.alarms.get_alarms(zone_c)
-            for alarm in alarms:
-                if alarm.program_metadata == "EmailSonosAlarm" and alarm.enabled == False:
-                    alarm.remove()
+        time.sleep(delay + 2)
+        soco.alarms.get_alarms(coordinator)
+
+        alarm_enabled = alarm.enabled
+        alarm.remove()
+
+        if not alarm_enabled:
+            logging.info('Alarm in zone %s was triggered' % coordinator.player_name)
+        else:
+            if retries == 0:
+                logging.error('Could not trigger alarm in zone %s' % coordinator.player_name)
+            else:
+                self.alarm_coordinator(coordinator, delay ** 2, retries - 1)
 
     @staticmethod
     def get_zones():
