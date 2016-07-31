@@ -1,4 +1,5 @@
 import datetime
+import time
 import logging
 
 import soco
@@ -24,21 +25,25 @@ class SonosAlarm(object):
         logging.info('Trigger alarm in Sonos')
         zones = self.get_zones()
 
-        coordinators = [zone for zone in zones if zone.is_coordinator]
-
-        alarms = soco.alarms.get_alarms()
-        for alarm in alarms:
-            if alarm.program_metadata == "EmailSonosAlarm" and alarm.enabled == False:
-                alarm.remove()
+        coordinators = list([zone for zone in zones if zone.is_coordinator])
 
         for zone_c in coordinators:
             logging.info('Enable alarm %s' % zone_c.player_name)
             alarm = Alarm(zone_c,
-                          start_time=datetime.datetime.now() + datetime.timedelta(0, 10),
+                          start_time=datetime.datetime.now() + datetime.timedelta(0, 3),
+                          duration=datetime.time(0, 2, 0),
                           recurrence='ONCE',
                           program_metadata='EmailSonosAlarm',
                           include_linked_zones=True)
             alarm.save()
+
+        time.sleep(4 * len(coordinators))
+
+        for zone_c in coordinators:
+            alarms = soco.alarms.get_alarms(zone_c)
+            for alarm in alarms:
+                if alarm.program_metadata == "EmailSonosAlarm" and alarm.enabled == False:
+                    alarm.remove()
 
     @staticmethod
     def get_zones():
