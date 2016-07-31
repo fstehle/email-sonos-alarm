@@ -2,6 +2,7 @@ import datetime
 import time
 import logging
 
+import pytz
 import soco
 from soco.alarms import Alarm, get_alarms
 
@@ -9,9 +10,10 @@ DISCOVER_TIMEOUT = 60
 
 
 class SonosAlarm(object):
-    def __init__(self, port):
+    def __init__(self, port, timezone):
         self.port = port
         self.configure_logging(logging.getLogger().level)
+        self.timezone = pytz.timezone(timezone)
 
     def configure_logging(self, level):
         logging.getLogger("requests").setLevel(logging.WARN)
@@ -30,7 +32,7 @@ class SonosAlarm(object):
         for zone_c in coordinators:
             logging.info('Enable alarm %s' % zone_c.player_name)
             alarm = Alarm(zone_c,
-                          start_time=datetime.datetime.now() + datetime.timedelta(0, 3),
+                          start_time=datetime.datetime.now(self.timezone) + datetime.timedelta(0, 3),
                           duration=datetime.time(0, 2, 0),
                           recurrence='ONCE',
                           program_metadata='EmailSonosAlarm',

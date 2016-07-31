@@ -14,6 +14,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--port', metavar='P', type=int, default=os.environ.get('PORT', '9000'), help='The HTTP port')
     parser.add_argument('--test', dest='test', action='store_true')
+    parser.add_argument('--timezone', help="Set timezone of Sonos system", default='UTC')
     parser.add_argument("-v", "--verbose", help="Enable verbose logging", action="store_const", dest="loglevel", const=logging.INFO, default=logging.WARNING)
     parser.add_argument('-d', '--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG)
     parser.add_argument('imap_host', metavar='IMAP_HOST', type=str, help='')
@@ -25,7 +26,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=args.loglevel, format='%(relativeCreated)6d - %(threadName)-17s - %(name)s - %(levelname)s - %(message)s')
 
-    sonos_alarm = SonosAlarm(args.port)
+    sonos_alarm = SonosAlarm(args.port, args.timezone)
 
     http_server = HttpServer(args.port)
     mail_fetcher = MailFetcher(args.imap_host, args.imap_user, args.imap_pass, args.imap_label)

@@ -9,6 +9,7 @@ localmail==0.4.1
 mock==2.0.0
 nose==1.3.7
 pbr==1.10.0
+pytz==2016.6.1
 requests==2.10.0
 six==1.10.0
 soco==0.11.1
