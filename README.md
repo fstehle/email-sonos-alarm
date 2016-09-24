@@ -16,6 +16,8 @@ python main.py IMAP_HOST IMAP_USER IMAP_PASS
 
 ## Usage on a x86 machine with Docker:
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/fstehle/email-sonos-alarm.svg?maxAge=2592000)]()
+
 ```
 export IMAP_HOST="imap.gmail.com"
 export IMAP_USER="mail.example.com"
@@ -25,6 +27,8 @@ docker run --rm -p 9001:80 fstehle/email-sonos-alarm -v --port 9001 $IMAP_HOST $
 ```
 
 ## Usage on a Raspberry Pi / ARMv7 with docker:
+
+[![Docker RPi Pulls](https://img.shields.io/docker/pulls/fstehle/rpi-email-sonos-alarm.svg?maxAge=2592000)]()
 
 ```
 export IMAP_HOST="imap.gmail.com"
