@@ -3,6 +3,7 @@ import threading
 
 import re
 from imaplib2 import imaplib2
+from prometheus_client import Counter
 
 pattern_uid = re.compile('\d+ \(UID (?P<uid>\d+)\)')
 
@@ -19,6 +20,7 @@ class MailFetcher(object):
         self.imap_idle_timeout = imap_idle_timeout
         self.should_process_mailbox = True
         self.event = threading.Event()
+        self.imap_idle_counter = Counter('imap_idle_commands_total', 'Number of IMAP IDLE commands sent to server')
 
     def add_new_mail_observer(self, observer):
         self.new_mail_observers.append(observer)
@@ -33,6 +35,7 @@ class MailFetcher(object):
                 return
 
             self.should_process_mailbox = False
+            self.imap_idle_counter.inc()
             self.imap.idle(callback=self.imap_idle_callback, timeout=self.imap_idle_timeout)
             logging.info("Waiting for new messages")
             self.event.wait()
