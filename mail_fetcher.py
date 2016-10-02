@@ -12,16 +12,26 @@ class MailFetcher(object):
     def __init__(self, imap_host, imap_user, imap_pass, label, imap_port=None, use_ssl=True, imap_idle_timeout = 29 * 60):
         self.stop = False
         self.new_mail_observers = []
-        if use_ssl:
-            self.imap = imaplib2.IMAP4_SSL(imap_host, imap_port)
-        else:
-            self.imap = imaplib2.IMAP4(imap_host, imap_port)
-        self.imap.login(imap_user, imap_pass)
-        self.imap.select(label)
+        self.imap_host = imap_host
+        self.imap_port = imap_port
+        self.imap_user = imap_user
+        self.imap_pass = imap_pass
+        self.label = label
+        self.use_ssl = use_ssl
         self.imap_idle_timeout = imap_idle_timeout
         self.should_process_mailbox = True
         self.event = threading.Event()
         self.imap_idle_counter = Counter('imap_idle_commands_total', 'Number of IMAP IDLE commands sent to server')
+        self.imap = None
+
+    def imap_connect(self):
+        if self.use_ssl:
+            imap = imaplib2.IMAP4_SSL(self.imap_host, self.imap_port)
+        else:
+            imap = imaplib2.IMAP4(self.imap_host, self.imap_port)
+        imap.login(self.imap_user, self.imap_pass)
+        imap.select(self.label)
+        return imap
 
     def add_new_mail_observer(self, observer):
         self.new_mail_observers.append(observer)
@@ -30,8 +40,20 @@ class MailFetcher(object):
         while not self.stop:
             self.event.clear()
 
+            while self.imap is None:
+                try:
+                    self.imap = self.imap_connect()
+                except (imaplib2.IMAP4.abort, imaplib2.IMAP4_SSL.abort, imaplib2.IMAP4.error) as e:
+                    logging.error("There was an error in the imap connection: " + str(e))
+                    time.sleep(10)
+
             if self.should_process_mailbox:
-                self.process_mailbox()
+                try:
+                    self.process_mailbox()
+                except (imaplib2.IMAP4.abort, imaplib2.IMAP4_SSL.abort, imaplib2.IMAP4.error) as e:
+                    logging.error("There was an error in the mailbox processing: " + str(e))
+                    self.imap = None
+                    continue
 
             self.should_process_mailbox = False
             self.imap_idle_counter.inc()
@@ -56,8 +78,18 @@ class MailFetcher(object):
             self.imap.store(num, '+FLAGS', '\\Deleted')
         self.imap.expunge()
 
-        for observer in self.new_mail_observers:
-            observer()
+        self.notify_observers()
+
+
+    def notify_observers(self, retries = 10, delay = 10):
+        try:
+            for observer in self.new_mail_observers:
+                observer()
+        except:
+            time.sleep(delay)
+            if retries == 0:
+                raise
+            self.notify_observers(retries - 1, delay)
 
     def stop(self):
         self.stop = true
