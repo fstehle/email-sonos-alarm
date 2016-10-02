@@ -10,6 +10,7 @@ pattern_uid = re.compile('\d+ \(UID (?P<uid>\d+)\)')
 
 class MailFetcher(object):
     def __init__(self, imap_host, imap_user, imap_pass, label, imap_port=None, use_ssl=True, imap_idle_timeout = 29 * 60):
+        self.stop = False
         self.new_mail_observers = []
         if use_ssl:
             self.imap = imaplib2.IMAP4_SSL(imap_host, imap_port)
@@ -26,13 +27,11 @@ class MailFetcher(object):
         self.new_mail_observers.append(observer)
 
     def fetch_forever(self):
-        while True:
-            if self.should_process_mailbox:
-                self.event.clear()
-                self.process_mailbox()
+        while not self.stop:
+            self.event.clear()
 
-            if self.event.isSet():
-                return
+            if self.should_process_mailbox:
+                self.process_mailbox()
 
             self.should_process_mailbox = False
             self.imap_idle_counter.inc()
@@ -61,6 +60,7 @@ class MailFetcher(object):
             observer()
 
     def stop(self):
+        self.stop = true
         self.event.set()
         self.imap.close()
         self.imap.logout()
